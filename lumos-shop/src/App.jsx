@@ -1,11 +1,23 @@
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Login } from "./pages/Login.jsx";
+import { Home } from "./pages/Home.jsx";
+import { PrivateRoute } from "./routes/privateRoute.jsx";
 
-function App() {
+export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<h1 className="text-">Lumos</h1>} />
-    </Routes>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Home />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
