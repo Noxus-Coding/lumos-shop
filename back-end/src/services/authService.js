@@ -59,7 +59,29 @@ async function login({ email, password }) {
   };
 }
 
+async function me(userId) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    }
+  });
+
+  if (!user) {
+    throw new Error("Usuário não encontrado");
+  }
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+  };
+}
+
 module.exports = {
   register,
   login,
+  me,
 };

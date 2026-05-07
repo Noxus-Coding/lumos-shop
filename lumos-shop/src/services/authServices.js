@@ -18,3 +18,9 @@ export async function loginRequest(email, password) {
 
   return response.data;
 }
+
+export async function  meRequest() {
+  const response = await api.get("/auth/me");
+
+  return response.data;
+}

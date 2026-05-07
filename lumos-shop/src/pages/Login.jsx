@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 
 export function Login() {
@@ -78,6 +78,12 @@ export function Login() {
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
+
+          <div>
+            <Link to="/register" className="text-sm text-blue-600 hover:text-blue-700">
+              Não tem conta? Cadastre-se
+            </Link>
+          </div>
         </form>
       </section>
     </main>

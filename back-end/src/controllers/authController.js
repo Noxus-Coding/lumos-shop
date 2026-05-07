@@ -23,7 +23,19 @@ async function login(req, res) {
   }
 }
 
+async function me(req, res) {
+  try {
+    return res.json({
+      id: req.userId,
+      email: req.userEmail,
+    });
+  } catch (error) {
+    return res.status(500).json({ menssagem: "Erro interno do servidor" });
+  }
+}
+
 module.exports = {
   register,
   login,
+  me,
 };

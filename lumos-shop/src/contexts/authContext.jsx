@@ -1,21 +1,37 @@
 import { createContext, useEffect, useContext, useState} from "react";
-import { loginRequest } from "../services/authServices";
+import { loginRequest, meRequest } from "../services/authServices";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
-    const [loadingAuth, setLoadingAuth] = useState(false);
+    const [loadingAuth, setLoadingAuth] = useState(true);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        const storedToken = localStorage.getItem("token");
+        async function loadUser() {
+            const storedUser = localStorage.getItem("user");
 
-        if (storedUser && storedToken) {
-            setUser(JSON.parse(storedUser));
+            if (!storedUser) {
+                setUser(null);
+                setLoadingAuth(false);
+                return;
+            }
+
+            try {
+                const userData = await meRequest();
+
+                localStorage.setItem("user", JSON.stringify(userData));
+                setUser(userData);
+            } catch (error) {
+                localStorage.removeItem("user");
+                localStorage.removeItem("token");
+                setUser(null);
+            } finally {
+                setLoadingAuth(false);
+            }
         }
 
-        setLoadingAuth(false);
+        loadUser();
     }, []);
 
     async function login(email, password) {
