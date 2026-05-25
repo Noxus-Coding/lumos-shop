@@ -1,25 +1,25 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+
+import { LandingPage } from "./pages/LandingPage.jsx";
 import { Login } from "./pages/Login.jsx";
-import { Home } from "./pages/Home.jsx";
-import { PrivateRoute } from "./routes/privateRoute.jsx";
 import { Register } from "./pages/Register.jsx";
+import { PrivateRoute } from "./routes/privateRoute.jsx";
+import {Home} from "./pages/Home.jsx";
 
-export default function App() {
+function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <Routes>
+      {/* Rotas públicas */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <Home />
-            </PrivateRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+      {/* Rotas privadas */}
+      <Route element={<PrivateRoute />}>
+        <Route path="/home" element={<Home />} />
+      </Route>
+    </Routes>
   );
 }
+
+export default App;
