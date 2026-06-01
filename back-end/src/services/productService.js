@@ -44,7 +44,14 @@ async function createProduct({ name, description, price, stock, imageUrl, catego
     return products;
 }
 
-async function listProducts() {
+async function listProducts({categoryId} = {}) {
+    
+    const where = {};
+
+    if (categoryId){
+        where.categoryId = Number(categoryId);
+    }
+    
     const products = await prisma.product.findMany({
         include: {
             category: true,

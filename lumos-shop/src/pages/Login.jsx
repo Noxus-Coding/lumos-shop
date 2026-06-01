@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FiArrowLeft } from "react-icons/fi";
 import { useAuth } from "../contexts/authContext";
 
 export function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [email, setEmail] = useState("teste@email.com");
-  const [password, setPassword] = useState("123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,7 +21,7 @@ export function Login() {
 
       await login(email, password);
 
-      navigate("/");
+      navigate("/admin/products");
     } catch (error) {
       setError("E-mail ou senha inválidos.");
     } finally {
@@ -29,13 +30,19 @@ export function Login() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
+    <main className="relative min-h-screen flex items-center justify-center bg-slate-100 px-4">
+      <Link
+        to="/"
+        className="absolute left-6 top-6 flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-200 hover:text-slate-950"
+      >
+        <FiArrowLeft className="text-lg" />
+        Voltar
+      </Link>
+
       <section className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-slate-900">Entrar</h1>
-          <p className="mt-2 text-sm text-slate-500">
-            Acesse sua conta para continuar
-          </p>
+          <h1 className="text-2xl font-bold text-slate-500">Efetuar login</h1>
+
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -74,13 +81,16 @@ export function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 rounded-lg bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-2 rounded-lg bg-yellow-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-yellow-600 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
 
           <div>
-            <Link to="/register" className="text-sm text-blue-600 hover:text-blue-700">
+            <Link
+              to="/register"
+              className="text-sm text-black hover:text-blue-700"
+            >
               Não tem conta? Cadastre-se
             </Link>
           </div>

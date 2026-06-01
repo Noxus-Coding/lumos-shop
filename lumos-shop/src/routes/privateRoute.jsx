@@ -1,13 +1,13 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../contexts/authContext.jsx";
 
-export function PrivateRoute({ children }) {
+export function PrivateRoute() {
   const { isAuthenticated, loadingAuth } = useAuth();
 
   if (loadingAuth) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-slate-100">
-        <p className="text-slate-600">Carregando...</p>
+      <main className="min-h-screen flex items-center justify-center">
+        <p>Carregando...</p>
       </main>
     );
   }
@@ -16,5 +16,5 @@ export function PrivateRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  return children;
+  return <Outlet />;
 }

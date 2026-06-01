@@ -1,16 +1,21 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
-import { AuthProvider } from "./contexts/authContext.jsx";
-import "./index.css";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+import App from "./App.jsx";
+import { AuthProvider } from "./contexts/authContext.jsx";
+import { CartProvider } from "./contexts/cartContext.jsx";
+
+import "./index.css";
+
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <CartProvider>
+          <App />
+        </CartProvider>
       </AuthProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </StrictMode>
 );

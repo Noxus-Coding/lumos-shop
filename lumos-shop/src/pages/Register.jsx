@@ -120,7 +120,7 @@ export function Register() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+            className="w-full rounded-lg bg-yellow-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-yellow-600 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loading ? "Cadastrando..." : "Cadastrar"}
           </button>
@@ -130,7 +130,7 @@ export function Register() {
           Já tem conta?{" "}
           <Link
             to="/login"
-            className="font-semibold text-blue-600 hover:text-blue-700"
+            className="font-semibold text-black hover:text-blue-700"
           >
             Entrar
           </Link>
