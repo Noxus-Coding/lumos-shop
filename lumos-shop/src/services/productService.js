@@ -5,11 +5,31 @@ export async function createProductRequest(data) {
   return response.data;
 }
 
-export async function listProductsRequest(categoryId) {
+export async function listProductsRequest(filters = {}) {
   const params = {};
 
-  if (categoryId) {
-    params.categoryId = categoryId;
+  if (
+    filters.categoryId !== undefined &&
+    filters.categoryId !== null &&
+    filters.categoryId !== ""
+  ) {
+    params.categoryId = filters.categoryId;
+  }
+
+  if (
+    filters.search !== undefined &&
+    filters.search !== null &&
+    filters.search.trim() !== ""
+  ) {
+    params.search = filters.search;
+  }
+
+  if (
+    filters.sort !== undefined &&
+    filters.sort !== null &&
+    filters.sort !== ""
+  ) {
+    params.sort = filters.sort;
   }
 
   const response = await api.get("/products", { params });

@@ -44,21 +44,57 @@ async function createProduct({ name, description, price, stock, imageUrl, catego
     return products;
 }
 
-async function listProducts({categoryId} = {}) {
-    
+async function listProducts({ categoryId, search, sort } = {}) {
     const where = {};
+    let orderBy = {
+        createdAt: "desc",
+    };
 
-    if (categoryId){
+    if (categoryId !== undefined && categoryId !== null && categoryId !== "") {
         where.categoryId = Number(categoryId);
     }
-    
+
+    if (search !== undefined && search !== null && search.trim() !== "") {
+        where.OR = [
+            {
+                name: {
+                    contains: search,
+                    mode: "insensitive",
+                },
+            },
+            {
+                description: {
+                    contains: search,
+                    mode: "insensitive",
+                },
+            },
+        ];
+    }
+
+    if (sort === "recent") {
+        orderBy = {
+            createdAt: "desc",
+        };
+    }
+
+    if (sort === "price_asc") {
+        orderBy = {
+            price: "asc",
+        };
+    }
+
+    if (sort === "price_desc") {
+        orderBy = {
+            price: "desc",
+        };
+    }
+
     const products = await prisma.product.findMany({
+        where,
         include: {
             category: true,
         },
-        orderBy: {
-            createdAt: 'desc',
-        },
+        orderBy,
     });
 
     return products;

@@ -6,6 +6,7 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loadingAuth, setLoadingAuth] = useState(true);
+    const isAdmin = user?.role === "ADMIN";
 
     useEffect(() => {
         async function loadUser() {
@@ -58,6 +59,7 @@ export function AuthProvider({ children }) {
         <AuthContext.Provider value={{
             user,
             isAuthenticated,
+            isAdmin,
             loadingAuth,
             login,
             logout
