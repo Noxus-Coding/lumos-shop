@@ -12,10 +12,10 @@ import { listProductsRequest } from "../services/productService.js";
 import ImgEnvios from "../assets/img/IconEnvio.png";
 import ImgJoiaModel from "../assets/img/IconJoia.png";
 import ImgLocation from "../assets/img/IconEndereco.png";
+import { FooterLanding } from "../components/landing/footer/FooterLading.jsx";
 
 export function LandingPage() {
     const [categories, setCategories] = useState([]);
-
     const [offersProducts, setOffersProducts] = useState([]);
     const [categoryProducts, setCategoryProducts] = useState([]);
 
@@ -35,7 +35,6 @@ export function LandingPage() {
         try {
             const data = await listProductsRequest();
 
-            // Limita a seção OFERTAS a apenas 3 produtos
             setOffersProducts(data.slice(0, 3));
         } catch (error) {
             console.log("Erro ao carregar ofertas", error);
@@ -46,7 +45,9 @@ export function LandingPage() {
         try {
             setLoadingProducts(true);
 
-            const data = await listProductsRequest(categoryId);
+            const data = await listProductsRequest({
+                categoryId,
+            });
 
             setCategoryProducts(data);
         } catch (error) {
@@ -76,7 +77,7 @@ export function LandingPage() {
     useEffect(() => {
         loadCategories();
         loadOffersProducts();
-        loadCategoryProducts();
+        loadCategoryProducts(null);
     }, []);
 
     return (
@@ -98,72 +99,83 @@ export function LandingPage() {
                     />
                 </section>
 
-                <section className="grid grid-cols-1 gap-6 border-b border-zinc-200 bg-white px-6 py-8 md:grid-cols-3 md:px-32">
-                    <div className="flex items-center gap-5">
-                        <img
-                            src={ImgEnvios}
-                            alt="Ícone de envio de pedidos"
-                            className="h-9 w-9 object-contain"
-                        />
+                <section className="border-b border-zinc-200 bg-white px-6 py-8">
+                    <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-3">
+                        <div className="flex items-center justify-start gap-5 md:justify-center">
+                            <img
+                                src={ImgEnvios}
+                                alt="Ícone de envio de pedidos"
+                                className="h-9 w-9 object-contain"
+                            />
 
-                        <div>
-                            <h3 className="text-base font-semibold text-black">
-                                Envio Nacional
-                            </h3>
-                            <p className="text-xs font-medium leading-tight text-zinc-700">
-                                Mandamos para qualquer lugar do Brasil
-                            </p>
+                            <div className="max-w-55">
+                                <h3 className="text-base font-semibold text-black">
+                                    Envio Nacional
+                                </h3>
+                                <p className="text-xs font-medium leading-tight text-zinc-700">
+                                    Mandamos para qualquer lugar do Brasil
+                                </p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="flex items-center gap-5">
-                        <img
-                            src={ImgJoiaModel}
-                            alt="Ícone de joia"
-                            className="h-9 w-9 object-contain"
-                        />
+                        <div className="flex items-center justify-start gap-5 md:justify-center">
+                            <img
+                                src={ImgJoiaModel}
+                                alt="Ícone de joia"
+                                className="h-9 w-9 object-contain"
+                            />
 
-                        <div>
-                            <h3 className="text-base font-semibold text-black">
-                                Prata 925 legítima
-                            </h3>
-                            <p className="text-xs font-medium leading-tight text-zinc-700">
-                                Todas as nossas peças são em 925 de verdade
-                            </p>
+                            <div className="max-w-55">
+                                <h3 className="text-base font-semibold text-black">
+                                    Prata 925 legítima
+                                </h3>
+                                <p className="text-xs font-medium leading-tight text-zinc-700">
+                                    Todas as nossas peças são em 925 de verdade
+                                </p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="flex items-center gap-5">
-                        <img
-                            src={ImgLocation}
-                            alt="Ícone de localização"
-                            className="h-9 w-9 object-contain"
-                        />
+                        <div className="flex items-center justify-start gap-5 md:justify-center">
+                            <img
+                                src={ImgLocation}
+                                alt="Ícone de localização"
+                                className="h-9 w-9 object-contain"
+                            />
 
-                        <div>
-                            <h3 className="text-base font-semibold text-black">
-                                Sob encomenda
-                            </h3>
-                            <p className="text-xs font-medium leading-tight text-zinc-700">
-                                A gente faz peças sob encomenda
-                            </p>
+                            <div className="max-w-55">
+                                <h3 className="text-base font-semibold text-black">
+                                    Sob encomenda
+                                </h3>
+                                <p className="text-xs font-medium leading-tight text-zinc-700">
+                                    A gente faz peças sob encomenda
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                <ProductCarousel products={offersProducts} title="OFERTAS" />
+                <ProductCarousel
+                    products={offersProducts}
+                    title="OFERTAS"
+                    background="gradient"
+                />
 
                 {loadingProducts ? (
-                    <section className="flex min-h-75 items-center justify-center">
-                        <p className="text-sm text-zinc-500">Carregando produtos...</p>
+                    <section className="flex min-h-75 items-center justify-center bg-white">
+                        <p className="text-sm text-zinc-500">
+                            Carregando produtos...
+                        </p>
                     </section>
                 ) : (
                     <ProductCarousel
                         products={categoryProducts}
+                        background="white"
                         title={getSelectedCategoryName()}
                     />
                 )}
             </main>
+
+            <FooterLanding />
         </div>
     );
 }

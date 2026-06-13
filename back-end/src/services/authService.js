@@ -18,6 +18,7 @@ async function register({ name, email, password }) {
       name,
       email,
       password: hashedPassword,
+      role: "USER",
     },
   });
 
@@ -25,6 +26,7 @@ async function register({ name, email, password }) {
     id: user.id,
     name: user.name,
     email: user.email,
+    role: user.role,
   };
 }
 
@@ -44,7 +46,7 @@ async function login({ email, password }) {
   }
 
   const token = jwt.sign(
-    { id: user.id, email: user.email },
+    { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN }
   );
@@ -55,6 +57,7 @@ async function login({ email, password }) {
       id: user.id,
       name: user.name,
       email: user.email,
+      role: user.role,
     },
   };
 }
@@ -66,6 +69,7 @@ async function me(userId) {
       id: true,
       name: true,
       email: true,
+      role: true,
     }
   });
 

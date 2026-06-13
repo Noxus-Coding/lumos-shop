@@ -32,6 +32,26 @@ async function show(req, res) {
     }
 }
 
+async function listProducts({ categoryId } = {}) {
+    const where = {};
+
+    if (categoryId) {
+        where.categoryId = Number(categoryId);
+    }
+
+    const products = await prisma.product.findMany({
+        where,
+        include: {
+            category: true,
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+
+    return products;
+}
+
 async function update(req, res) {
     try {
         const product = await productService.updateProduct(req.params.id, req.body);
@@ -54,6 +74,7 @@ module.exports = {
     create,
     index,
     show,
+    listProducts,
     update,
     remove
 }
