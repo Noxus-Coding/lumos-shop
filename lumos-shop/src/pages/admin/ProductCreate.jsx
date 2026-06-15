@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { createProductRequest } from "../../services/productService.js";
 import { listCategoriesRequest } from "../../services/categoryServices.js";
 import { uploadImageToCloudinary } from "../../services/cloudinaryService.js";
@@ -8,6 +9,22 @@ export function ProductCreate() {
     const navigate = useNavigate();
 
     const [categories, setCategories] = useState([]);
+
+    const [form, setForm] = useState({
+        name: "",
+        description: "",
+        costPrice: "",
+        price: "",
+        stock: "",
+        imageUrl: "",
+        categoryId: "",
+    });
+
+    const [imagePreview, setImagePreview] = useState("");
+    const [uploadingImage, setUploadingImage] = useState(false);
+
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         async function loadCategories() {
@@ -22,18 +39,6 @@ export function ProductCreate() {
         loadCategories();
     }, []);
 
-    const [form, setForm] = useState({
-        name: "",
-        description: "",
-        price: "",
-        stock: "",
-        imageUrl: "",
-        categoryId: "",
-    });
-
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
-
     function handleChange(event) {
         const { name, value } = event.target;
 
@@ -42,9 +47,6 @@ export function ProductCreate() {
             [name]: value,
         }));
     }
-
-    const [imagePreview, setImagePreview] = useState("");
-    const [uploadingImage, setUploadingImage] = useState(false);
 
     async function handleImageUpload(file) {
         if (!file) return;
@@ -93,19 +95,6 @@ export function ProductCreate() {
         event.preventDefault();
     }
 
-    function handleDrop(event) {
-        event.preventDefault();
-
-        const file = event.dataTransfer.files[0];
-
-        handleImageUpload(file);
-    }
-
-    function handleDragOver(event) {
-        event.preventDefault();
-    }
-
-
     async function handleSubmit(event) {
         event.preventDefault();
 
@@ -116,6 +105,7 @@ export function ProductCreate() {
             await createProductRequest({
                 name: form.name,
                 description: form.description,
+                costPrice: Number(form.costPrice),
                 price: Number(form.price),
                 stock: Number(form.stock),
                 imageUrl: form.imageUrl,
@@ -219,7 +209,9 @@ export function ProductCreate() {
                                 type="file"
                                 accept="image/png, image/jpeg, image/jpg, image/webp"
                                 className="hidden"
-                                onChange={(event) => handleImageUpload(event.target.files[0])}
+                                onChange={(event) =>
+                                    handleImageUpload(event.target.files[0])
+                                }
                             />
                         </label>
 
@@ -239,32 +231,50 @@ export function ProductCreate() {
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                         <div>
                             <label className="mb-1 block text-sm font-medium">
-                                Preço
+                                Preço de custo
                             </label>
                             <input
-                                name="price"
+                                name="costPrice"
                                 type="number"
                                 step="0.01"
-                                value={form.price}
+                                min="0"
+                                value={form.costPrice}
                                 onChange={handleChange}
-                                placeholder="Ex: 169.99"
+                                placeholder="Ex: 80.00"
                                 className="w-full rounded-lg border border-zinc-300 px-4 py-3 text-sm outline-none focus:border-zinc-900"
                             />
                         </div>
 
                         <div>
                             <label className="mb-1 block text-sm font-medium">
-                                Estoque
+                                Preço de venda
                             </label>
                             <input
-                                name="stock"
+                                name="price"
                                 type="number"
-                                value={form.stock}
+                                step="0.01"
+                                min="0"
+                                value={form.price}
                                 onChange={handleChange}
-                                placeholder="Quantidade"
+                                placeholder="Ex: 169.99"
                                 className="w-full rounded-lg border border-zinc-300 px-4 py-3 text-sm outline-none focus:border-zinc-900"
                             />
                         </div>
+                    </div>
+
+                    <div>
+                        <label className="mb-1 block text-sm font-medium">
+                            Estoque
+                        </label>
+                        <input
+                            name="stock"
+                            type="number"
+                            min="0"
+                            value={form.stock}
+                            onChange={handleChange}
+                            placeholder="Quantidade"
+                            className="w-full rounded-lg border border-zinc-300 px-4 py-3 text-sm outline-none focus:border-zinc-900"
+                        />
                     </div>
 
                     {error && (
@@ -275,7 +285,7 @@ export function ProductCreate() {
 
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || uploadingImage}
                         className="w-full rounded-full bg-yellow-500 py-3 text-sm font-semibold text-white transition hover:bg-yellow-600 disabled:opacity-60"
                     >
                         {loading ? "Cadastrando..." : "Cadastrar produto"}
