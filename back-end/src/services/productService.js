@@ -1,12 +1,34 @@
 const prisma = require('../config/prisma.js');
 
-async function createProduct({ name, description, price, stock, imageUrl, categoryId }) {
+async function createProduct({
+    name,
+    description,
+    costPrice,
+    price,
+    stock,
+    imageUrl,
+    categoryId,
+}) {
     if (!name) {
         throw new Error("Nome do produto é obrigatório");
     }
-    if (!price) {
-        throw new Error("Preço do produto é obrigatório");
+
+    if (costPrice === undefined || costPrice === null || costPrice === "") {
+        throw new Error("Preço de custo do produto é obrigatório");
     }
+
+    if (Number(costPrice) < 0) {
+        throw new Error("Preço de custo inválido");
+    }
+
+    if (!price) {
+        throw new Error("Preço de venda do produto é obrigatório");
+    }
+
+    if (Number(price) <= 0) {
+        throw new Error("Preço de venda inválido");
+    }
+
     if (stock === undefined || Number(stock) < 0) {
         throw new Error("Estoque do produto é obrigatório e deve ser um número não negativo");
     }
@@ -17,7 +39,7 @@ async function createProduct({ name, description, price, stock, imageUrl, catego
         const categoryExists = await prisma.category.findUnique({
             where: {
                 id: Number(categoryId),
-            }
+            },
         });
 
         if (!categoryExists) {
@@ -27,21 +49,22 @@ async function createProduct({ name, description, price, stock, imageUrl, catego
         validCategoryId = Number(categoryId);
     }
 
-    const products = await prisma.product.create({
+    const product = await prisma.product.create({
         data: {
             name,
             description,
+            costPrice: Number(costPrice),
             price: Number(price),
             stock: Number(stock),
             imageUrl,
-            categoryId: categoryId ? Number(categoryId) : null,
+            categoryId: validCategoryId,
         },
         include: {
             category: true,
         },
     });
 
-    return products;
+    return product;
 }
 
 async function listProducts({ categoryId, search, sort } = {}) {
@@ -117,11 +140,14 @@ async function getProductById(id) {
     return product;
 }
 
-async function updateProduct(id, { name, description, price, stock, imageUrl, categoryId }) {
+async function updateProduct(
+    id,
+    { name, description, costPrice, price, stock, imageUrl, categoryId }
+) {
     const productExists = await prisma.product.findUnique({
         where: {
             id: Number(id),
-        }
+        },
     });
 
     if (!productExists) {
@@ -132,28 +158,36 @@ async function updateProduct(id, { name, description, price, stock, imageUrl, ca
         throw new Error("Nome do produto é obrigatório");
     }
 
+    if (costPrice !== undefined && Number(costPrice) < 0) {
+        throw new Error("Preço de custo inválido");
+    }
+
     if (price !== undefined && Number(price) <= 0) {
-        throw new Error("Preço inválido");
+        throw new Error("Preço de venda inválido");
     }
 
     if (stock !== undefined && Number(stock) < 0) {
         throw new Error("Estoque do produto é obrigatório e deve ser um número não negativo");
     }
 
-    let validCategoryId = null;
+    let validCategoryId = undefined;
 
     if (categoryId !== undefined) {
-        const categoryExists = await prisma.category.findUnique({
-            where: {
-                id: Number(categoryId),
-            },
-        });
+        if (categoryId === null || categoryId === "") {
+            validCategoryId = null;
+        } else {
+            const categoryExists = await prisma.category.findUnique({
+                where: {
+                    id: Number(categoryId),
+                },
+            });
 
-        if (!categoryExists) {
-            throw new Error("Categoria não encontrada");
+            if (!categoryExists) {
+                throw new Error("Categoria não encontrada");
+            }
+
+            validCategoryId = Number(categoryId);
         }
-
-        validCategoryId = Number(categoryId);
     }
 
     const updatedProduct = await prisma.product.update({
@@ -161,12 +195,13 @@ async function updateProduct(id, { name, description, price, stock, imageUrl, ca
             id: Number(id),
         },
         data: {
-            ...name !== undefined && { name },
-            ...description !== undefined && { description },
-            ...price !== undefined && { price: Number(price) },
-            ...stock !== undefined && { stock: Number(stock) },
-            ...imageUrl !== undefined && { imageUrl },
-            ...categoryId !== undefined && { categoryId: validCategoryId },
+            ...(name !== undefined && { name }),
+            ...(description !== undefined && { description }),
+            ...(costPrice !== undefined && { costPrice: Number(costPrice) }),
+            ...(price !== undefined && { price: Number(price) }),
+            ...(stock !== undefined && { stock: Number(stock) }),
+            ...(imageUrl !== undefined && { imageUrl }),
+            ...(categoryId !== undefined && { categoryId: validCategoryId }),
         },
         include: {
             category: true,

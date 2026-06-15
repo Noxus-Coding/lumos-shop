@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Head from "../assets/img/Head.png";
 
 import { CategoryNav } from "../components/landing/CategoryNavbar";
 import { HeaderLanding } from "../components/landing/header/HeaderLanding";
 import { ProductCarousel } from "../components/landing/ProductCarrosel/ProductCarrosel.jsx";
+import { FooterLanding } from "../components/landing/footer/FooterLading.jsx";
 
 import { listCategoriesRequest } from "../services/categoryServices";
 import { listProductsRequest } from "../services/productService.js";
@@ -12,7 +13,6 @@ import { listProductsRequest } from "../services/productService.js";
 import ImgEnvios from "../assets/img/IconEnvio.png";
 import ImgJoiaModel from "../assets/img/IconJoia.png";
 import ImgLocation from "../assets/img/IconEndereco.png";
-import { FooterLanding } from "../components/landing/footer/FooterLading.jsx";
 
 export function LandingPage() {
     const [categories, setCategories] = useState([]);
@@ -21,6 +21,8 @@ export function LandingPage() {
 
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
     const [loadingProducts, setLoadingProducts] = useState(false);
+
+    const productsSectionRef = useRef(null);
 
     async function loadCategories() {
         try {
@@ -34,7 +36,6 @@ export function LandingPage() {
     async function loadOffersProducts() {
         try {
             const data = await listProductsRequest();
-
             setOffersProducts(data.slice(0, 3));
         } catch (error) {
             console.log("Erro ao carregar ofertas", error);
@@ -60,6 +61,13 @@ export function LandingPage() {
     function handleSelectCategory(categoryId) {
         setSelectedCategoryId(categoryId);
         loadCategoryProducts(categoryId);
+
+        setTimeout(() => {
+            productsSectionRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }, 100);
     }
 
     function getSelectedCategoryName() {
@@ -82,13 +90,15 @@ export function LandingPage() {
 
     return (
         <div className="min-h-screen bg-white">
-            <HeaderLanding />
+            <div className="sticky top-0 z-50">
+                <HeaderLanding />
 
-            <CategoryNav
-                categories={categories}
-                selectedCategoryId={selectedCategoryId}
-                onSelectCategory={handleSelectCategory}
-            />
+                <CategoryNav
+                    categories={categories}
+                    selectedCategoryId={selectedCategoryId}
+                    onSelectCategory={handleSelectCategory}
+                />
+            </div>
 
             <main className="w-full">
                 <section className="w-full">
@@ -160,19 +170,24 @@ export function LandingPage() {
                     background="gradient"
                 />
 
-                {loadingProducts ? (
-                    <section className="flex min-h-75 items-center justify-center bg-white">
-                        <p className="text-sm text-zinc-500">
-                            Carregando produtos...
-                        </p>
-                    </section>
-                ) : (
-                    <ProductCarousel
-                        products={categoryProducts}
-                        background="white"
-                        title={getSelectedCategoryName()}
-                    />
-                )}
+                <section
+                    ref={productsSectionRef}
+                    className="scroll-mt-37.5"
+                >
+                    {loadingProducts ? (
+                        <div className="flex min-h-75 items-center justify-center bg-white">
+                            <p className="text-sm text-zinc-500">
+                                Carregando produtos...
+                            </p>
+                        </div>
+                    ) : (
+                        <ProductCarousel
+                            products={categoryProducts}
+                            background="white"
+                            title={getSelectedCategoryName()}
+                        />
+                    )}
+                </section>
             </main>
 
             <FooterLanding />
