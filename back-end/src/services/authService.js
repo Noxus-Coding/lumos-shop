@@ -46,9 +46,15 @@ async function login({ email, password }) {
   }
 
   const token = jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN }
+    {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    }
   );
 
   return {
@@ -64,24 +70,22 @@ async function login({ email, password }) {
 
 async function me(userId) {
   const user = await prisma.user.findUnique({
-    where: { id: userId },
+    where: {
+      id: userId,
+    },
     select: {
       id: true,
       name: true,
       email: true,
       role: true,
-    }
+    },
   });
 
   if (!user) {
     throw new Error("Usuário não encontrado");
   }
 
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-  };
+  return user;
 }
 
 module.exports = {

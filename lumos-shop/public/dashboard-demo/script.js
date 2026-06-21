@@ -45,6 +45,14 @@ function preencherDashboard(dados) {
   );
 }
 
+function bloquearAcesso(mensagem) {
+  mostrarErro(mensagem);
+
+  setTimeout(() => {
+    window.location.href = "/login";
+  }, 1500);
+}
+
 async function carregarDashboard() {
   try {
     esconderErro();
@@ -52,7 +60,7 @@ async function carregarDashboard() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      mostrarErro("Você precisa estar logado como administrador.");
+      bloquearAcesso("Você precisa estar logado como administrador.");
       return;
     }
 
@@ -63,17 +71,22 @@ async function carregarDashboard() {
       },
     });
 
-    if (resposta.status === 401 || resposta.status === 403) {
-      mostrarErro("Acesso negado. Faça login novamente como administrador.");
+    const dados = await resposta.json().catch(() => null);
+
+    if (resposta.status === 401) {
+      bloquearAcesso("Sessão expirada. Faça login novamente.");
+      return;
+    }
+
+    if (resposta.status === 403) {
+      bloquearAcesso("Acesso negado. Faça login como administrador.");
       return;
     }
 
     if (!resposta.ok) {
-      mostrarErro("Erro ao carregar dados do dashboard.");
+      mostrarErro(dados?.message || "Erro ao carregar dados do dashboard.");
       return;
     }
-
-    const dados = await resposta.json();
 
     preencherDashboard(dados);
   } catch (error) {

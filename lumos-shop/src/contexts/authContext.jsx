@@ -1,80 +1,82 @@
-import { createContext, useEffect, useContext, useState} from "react";
+import { createContext, useEffect, useContext, useState } from "react";
 import { loginRequest, meRequest } from "../services/authServices";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
-    const [loadingAuth, setLoadingAuth] = useState(true);
-    const isAdmin = user?.role === "ADMIN";
+  const [user, setUser] = useState(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
 
-    useEffect(() => {
-        async function loadUser() {
-            const storedUser = localStorage.getItem("user");
+  const isAuthenticated = !!user;
+  const isAdmin = user?.role === "ADMIN";
 
-            if (!storedUser) {
-                setUser(null);
-                setLoadingAuth(false);
-                return;
-            }
+  useEffect(() => {
+    async function loadUser() {
+      const token = localStorage.getItem("token");
 
-            try {
-                const userData = await meRequest();
+      if (!token) {
+        setUser(null);
+        setLoadingAuth(false);
+        return;
+      }
 
-                localStorage.setItem("user", JSON.stringify(userData));
-                setUser(userData);
-            } catch (error) {
-                localStorage.removeItem("user");
-                localStorage.removeItem("token");
-                setUser(null);
-            } finally {
-                setLoadingAuth(false);
-            }
-        }
+      try {
+        const userData = await meRequest();
 
-        loadUser();
-    }, []);
-
-    async function login(email, password) {
-        const data = await loginRequest(email, password);
-
-        localStorage.setItem("user", JSON.stringify(data.user));
-        localStorage.setItem("token", data.token);
-
-        setUser(data.user);
-
-        return data;
-    }
-
-    function logout() {
+        localStorage.setItem("user", JSON.stringify(userData));
+        setUser(userData);
+      } catch (error) {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
-
         setUser(null);
+      } finally {
+        setLoadingAuth(false);
+      }
     }
 
-    const isAuthenticated = !!user;
+    loadUser();
+  }, []);
 
-    return (
-        <AuthContext.Provider value={{
-            user,
-            isAuthenticated,
-            isAdmin,
-            loadingAuth,
-            login,
-            logout
-        }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  async function login(email, password) {
+    const data = await loginRequest(email, password);
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    setUser(data.user);
+
+    return data;
+  }
+
+  function logout() {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+
+    setUser(null);
+  }
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        isAdmin,
+        loadingAuth,
+        login,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-    const context = useContext(AuthContext);
+  const context = useContext(AuthContext);
 
-    if (!context) {
-        throw new Error("useAuth deve ser usado dentro de um AuthProvider");
-    }
+  if (!context) {
+    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+  }
 
-    return context;
+  return context;
 }

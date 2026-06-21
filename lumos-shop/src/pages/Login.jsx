@@ -1,17 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import { useAuth } from "../contexts/authContext";
 
 export function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated, isAdmin, loadingAuth } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (loadingAuth) {
+      return;
+    }
+
+    if (isAuthenticated && isAdmin) {
+      navigate("/admin/products", { replace: true });
+      return;
+    }
+
+    if (isAuthenticated && !isAdmin) {
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, isAdmin, loadingAuth, navigate]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -39,6 +54,14 @@ export function Login() {
     }
   }
 
+  if (loadingAuth) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-100">
+        <p>Carregando...</p>
+      </main>
+    );
+  }
+
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-slate-100 px-4">
       <Link
@@ -51,9 +74,7 @@ export function Login() {
 
       <section className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-slate-700">
-            Efetuar login
-          </h1>
+          <h1 className="text-2xl font-bold text-slate-700">Efetuar login</h1>
 
           <p className="mt-2 text-sm text-slate-500">
             Acesse sua conta para continuar
@@ -62,9 +83,7 @@ export function Login() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-slate-700">
-              E-mail
-            </label>
+            <label className="text-sm font-medium text-slate-700">E-mail</label>
 
             <input
               type="email"
@@ -76,9 +95,7 @@ export function Login() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-slate-700">
-              Senha
-            </label>
+            <label className="text-sm font-medium text-slate-700">Senha</label>
 
             <input
               type="password"
