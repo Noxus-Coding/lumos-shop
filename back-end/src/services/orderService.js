@@ -65,6 +65,7 @@ async function createOrder({ customerName, phone, address, items }) {
                 address,
                 total,
                 status: "EM_SEPARACAO",
+                paymentStatus: "PENDENTE",
                 items: {
                     create: orderItemsData,
                 },
@@ -97,11 +98,15 @@ async function createOrder({ customerName, phone, address, items }) {
     return order;
 }
 
-async function listOrders({ status } = {}) {
+async function listOrders({ status, paymentStatus } = {}) {
     const where = {};
 
     if (status) {
         where.status = status;
+    }
+
+    if (paymentStatus) {
+        where.paymentStatus = paymentStatus;
     }
 
     const orders = await prisma.order.findMany({
@@ -178,9 +183,46 @@ async function updateOrderStatus(id, { status }) {
     return order;
 }
 
+async function updateOrderPaymentStatus(id, { paymentStatus }) {
+    const allowedPaymentStatus = ["PENDENTE", "PAGO"];
+
+    if (!allowedPaymentStatus.includes(paymentStatus)) {
+        throw new Error("Status de pagamento inválido");
+    }
+
+    const orderExists = await prisma.order.findUnique({
+        where: {
+            id: Number(id),
+        },
+    });
+
+    if (!orderExists) {
+        throw new Error("Pedido não encontrado");
+    }
+
+    const order = await prisma.order.update({
+        where: {
+            id: Number(id),
+        },
+        data: {
+            paymentStatus,
+        },
+        include: {
+            items: {
+                include: {
+                    product: true,
+                },
+            },
+        },
+    });
+
+    return order;
+}
+
 module.exports = {
     createOrder,
     listOrders,
     getOrderById,
     updateOrderStatus,
+    updateOrderPaymentStatus,
 };

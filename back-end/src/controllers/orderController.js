@@ -55,9 +55,26 @@ async function updateStatus(req, res) {
     }
 }
 
+async function updatePaymentStatus(req, res) {
+    try {
+        const order = await orderService.updateOrderPaymentStatus(
+            req.params.id,
+            req.body
+        );
+
+        return res.status(200).json(order);
+    } catch (error) {
+        return res.status(400).json({
+            message: "Erro ao atualizar pagamento do pedido",
+            error: error.message,
+        });
+    }
+}
+
 module.exports = {
     create,
     index,
     show,
     updateStatus,
+    updatePaymentStatus,
 };

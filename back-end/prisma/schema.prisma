@@ -58,6 +58,11 @@ model Product {
   @@map("products")
 }
 
+enum PagamentStatus {
+  PENDENTE
+  PAGO
+}
+
 enum OrderStatus {
   EM_SEPARACAO
   ENVIADO
@@ -71,6 +76,8 @@ model Order {
   address      String?
   total        Decimal     @db.Decimal(10, 2)
   status       OrderStatus @default(EM_SEPARACAO)
+
+  paymentStatus PagamentStatus @default(PENDENTE)
 
   items OrderItem[]
 
