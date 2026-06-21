@@ -9,6 +9,7 @@ const router = express.Router();
 router.post("/", orderController.create);
 
 router.get("/", authMiddleware, adminMiddleware, orderController.index);
+
 router.get("/:id", authMiddleware, adminMiddleware, orderController.show);
 
 router.patch(
@@ -16,6 +17,13 @@ router.patch(
     authMiddleware,
     adminMiddleware,
     orderController.updateStatus
+);
+
+router.patch(
+    "/:id/payment-status",
+    authMiddleware,
+    adminMiddleware,
+    orderController.updatePaymentStatus
 );
 
 module.exports = router;
